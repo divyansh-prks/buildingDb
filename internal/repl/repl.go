@@ -41,6 +41,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"encoding/json"
 )
 
 type Column struct {
@@ -64,6 +65,41 @@ var usersTable = Table{
 	Rows : make(map[int][]interface{}),
 }
 
+
+func saveToFile(){
+	file , err := os.Create("db.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	data , err := json.Marshal(usersTable.Rows)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file.Write(data)
+}
+
+
+func loadFromFIle(){
+	file , err := os.Open("db.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	var rows map[int][]interface{}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&rows)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	usersTable.Rows = rows
+}
 
 
 func main(){
@@ -90,9 +126,22 @@ func main(){
 			//Place holder : Handle insert logic (store into array /db /file )
 
 			fmt.Println("Inserting into the database")
+			saveToFile()
 
 			fmt.Printf("New user added : Id = %d , Name = %s \n" , 1 , "John")
 			//inserting into the persistent storage 
+
+		}else if strings.HasPrefix(line, "SELECT") {
+			 {
+				fmt.Println("Viewing data in the users table:")
+				loadFromFIle()
+				for id, row := range usersTable.Rows {
+					fmt.Printf("ID: %d, Name: %s\n", id, row[1].(string))  // Print out each row's data
+				}
+			}
+			
+
+		
 		}else if line == "EXIT"{
 			fmt.Println("Exiting Program")
 			break
