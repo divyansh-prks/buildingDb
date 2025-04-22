@@ -43,11 +43,28 @@ import (
 	"strings"
 )
 
-type Table struct {
-	Name strings
-	Column
-	Rows map(int ,0,3) 
+type Column struct {
+	Name string 
+	Datatype string 
 }
+
+type Table struct {
+    Name    string
+    Columns []Column
+    Rows    map[int][]interface{}  // A map where key is row ID, and value is a slice of column values
+}
+
+
+var usersTable = Table{
+	Name : "users", 
+	Columns : []Column{
+		{Name : "id" , Datatype : "int"}, 
+		{Name : "name" , Datatype : "string"},
+	}, 
+	Rows : make(map[int][]interface{}),
+}
+
+
 
 func main(){
 	fmt.Println("Input Text :")
@@ -66,9 +83,16 @@ func main(){
 		if line == "INSERT users 1 John" {
 			fmt.Println("Logged into insert Command")
 
+			newRow := []interface{}{1 , "John"}
+			usersTable.Rows[1] = newRow
+
+
 			//Place holder : Handle insert logic (store into array /db /file )
 
 			fmt.Println("Inserting into the database")
+
+			fmt.Printf("New user added : Id = %d , Name = %s \n" , 1 , "John")
+			//inserting into the persistent storage 
 		}else if line == "EXIT"{
 			fmt.Println("Exiting Program")
 			break
